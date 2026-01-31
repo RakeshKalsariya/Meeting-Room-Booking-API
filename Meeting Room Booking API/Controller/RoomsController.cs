@@ -37,6 +37,10 @@ namespace Meeting_Room_Booking_API.Controller
         [HttpPost]
         public async Task<IActionResult> CreateRoom([FromBody] Room room)
         {
+            if(room.Name != null && room.Capacity != null)
+            {
+                return BadRequest("not null this Name and Capacity");
+            }
             _applicationDb.Rooms.Add(room);
             await _applicationDb.SaveChangesAsync();
             return CreatedAtAction(nameof(GetRoom), new { id = room.Id }, room);
