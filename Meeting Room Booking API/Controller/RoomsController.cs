@@ -1,6 +1,7 @@
 ﻿using Meeting_Room_Booking_API.Data;
 using Meeting_Room_Booking_API.Domain;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Meeting_Room_Booking_API.Controller
 {
@@ -60,6 +61,10 @@ namespace Meeting_Room_Booking_API.Controller
         public async Task<IActionResult> DeleteRoom(int id)
         {
             var room = await _applicationDb.Rooms.FindAsync(id);
+            var hasFutureBookings = await _applicationDb.Bookings
+            .AnyAsync(b => b.RoomId == id && b.StartTime.ToUniversalTime() > DateTime.UtcNow);
+            if (hasFutureBookings)
+                return BadRequest("Room has future bookings and cannot be deleted");
             if (room == null)
             {
                 return NotFound();
